@@ -2,6 +2,15 @@
 name = "segtok"
 version = "0.1.0"
 edition = "2021"
+resolver = "2"
+
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Florian Leitner", "Igor Strebz"]
+categories = ["text-processing"]
+description = "Sentence segmentation and word tokenization tools"
+keywords = ["tokenizer", "segmenter", "word", "split"]
+license = "MIT"
+repository = "https://github.com/xamgore/segtok"
 
 [dependencies]
 fancy-regex = "0.14.0"
