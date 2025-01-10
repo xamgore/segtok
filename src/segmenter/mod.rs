@@ -35,7 +35,6 @@ pub use self::abbreviations::*;
 pub use self::continuations::*;
 pub use self::dates::*;
 pub use self::unix_linebreaks::*;
-use super::iter_tools::join;
 use super::regex::RegexSplitExt;
 
 pub mod dates {
@@ -203,7 +202,7 @@ fn sentences<'a>(spans: impl Iterator<Item = &'a str>, cfg: SegmentConfig) -> Ve
 /// Join spans that match the `ABBREVIATIONS` pattern.
 fn join_abbreviations(spans: &[&str]) -> Vec<String> {
     let mut res = Vec::with_capacity(spans.len());
-    let mut put = |start, end| res.push(join(spans[start..end].iter(), ""));
+    let mut put = |start, end| res.push(spans[start..end].join(""));
 
     fn ends_with_whitespace(str: &str) -> bool {
         str.bytes().next_back().is_some_and(|ch| ch.is_ascii_whitespace())
@@ -326,7 +325,6 @@ mod tests {
     use std::sync::LazyLock;
 
     use super::*;
-    use crate::iter_tools::join;
 
     const OSPL: &str = include_str!("ospl.txt");
 
@@ -338,7 +336,7 @@ mod tests {
     fn try_newline() {
         assert_eq!(*SENTENCES, split_newline(OSPL).collect::<Vec<_>>())
     }
-    
+
     #[test]
     fn try_regex() {
         let actual = split_single(&TEXT, Default::default());
@@ -346,7 +344,7 @@ mod tests {
     }
 
     fn test_split_single<const N: usize>(sentences: [&str; N]) {
-        let text = join(sentences.iter(), " ");
+        let text = sentences.join(" ");
         let expected: Vec<&str> = sentences.to_vec();
         let actual = split_single(&text, Default::default());
         assert_eq!(expected, actual);

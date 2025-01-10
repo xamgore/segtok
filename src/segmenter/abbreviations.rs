@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
 use fancy_regex::Regex;
+use itertools::Itertools;
 
-use crate::iter_tools::join;
 use crate::segmenter::HYPHENS;
 
 /// Common abbreviations at the candidate sentence end that normally don't terminate a sentence.
@@ -17,7 +17,7 @@ pub static ABBREVIATIONS: LazyLock<Regex> = LazyLock::new(|| {
         Jän Jan Ene Feb Mär Mar Apr Abr May Jun Jul Aug Sep Sept Oct Okt Nov Dic Dez Dec
         E\.U U\.K U\.S
     "#;
-    let list = join(list.split_ascii_whitespace(), "|");
+    let list = list.split_ascii_whitespace().join("|");
     Regex::new(&format!(
         r#"(?ux)
         (?: \b(?:{list}) # 1. known abbreviations,

@@ -1,6 +1,7 @@
 use std::sync::LazyLock;
 
 use fancy_regex::Regex;
+
 use crate::regex::RegexSplitExt;
 use crate::tokenizer::word_tokenizer;
 

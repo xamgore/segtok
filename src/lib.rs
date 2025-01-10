@@ -1,4 +1,3 @@
-pub(crate) mod iter_tools;
+pub(crate) mod regex;
 pub mod segmenter;
 pub mod tokenizer;
-pub(crate) mod regex;
