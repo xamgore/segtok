@@ -27,9 +27,9 @@ pub fn split_contractions(mut tokens: Vec<String>) -> Vec<String> {
         let token = &mut tokens[idx];
 
         if token.len() > 1 && IS_CONTRACTION.is_match(token).unwrap() {
-            if let Some((mut pos, _)) = token.char_indices().rfind(|&(_, ch)| LIST_OF_APOSTROPHES.contains(ch)) {
+            if let Some((mut pos, ap)) = token.char_indices().rfind(|&(_, ch)| LIST_OF_APOSTROPHES.contains(ch)) {
                 // don't, doesn't
-                if token.get(pos.saturating_sub(1)..pos) == Some("n") && token.get(pos + 1..) == Some("t") {
+                if token.get(pos.saturating_sub(1)..pos) == Some("n") && token.get(pos + ap.len_utf8()..) == Some("t") {
                     pos = pos.saturating_sub(1);
                 }
 
@@ -82,6 +82,12 @@ mod tests {
     fn split_not() {
         let res = split_contractions(vec!["don't".to_owned()]);
         assert_eq!(res, ["do", "n't"]);
+    }
+
+    #[test]
+    fn split_not_with_alternative_apostrophe() {
+        let res = split_contractions(vec!["won’t".to_owned()]);
+        assert_eq!(res, ["wo", "n’t"]);
     }
 
     #[test]
