@@ -213,13 +213,13 @@ fn join_abbreviations(spans: &[&str]) -> Vec<String> {
         if pos % 2 == 0 {
             from = from.or(Some(pos));
         } else {
-            let prev = &spans[pos - 1];
-            let marker = &spans[pos];
+            let prev = spans[pos - 1];
+            let marker = spans[pos];
             let next = spans.get(pos + 1);
 
             if ends_with_whitespace(prev)
                 || marker.starts_with('.') && (ABBREVIATIONS.find(prev).unwrap().is_some())
-                || next.is_some_and(|next| {
+                || next.is_some_and(|&next| {
                     LONE_WORD.is_match(next).unwrap()
                         || (ENDS_IN_DATE_DIGITS.find(prev).unwrap().is_some() && MONTH.is_match(next).unwrap())
                         || (MIDDLE_INITIAL_END.find(prev).unwrap().is_some()

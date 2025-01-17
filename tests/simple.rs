@@ -16,5 +16,11 @@ fn simple() {
         })
         .collect();
 
-    println!("{:?}", sentences);
+    let expected = vec![
+        vec!["I", "am", "a", "competition-centric", "person", "!"],
+        vec!["I", "really", "like", "competitions", "."],
+        vec!["Every", "competition", "is", "a", "hoot", "!"],
+    ];
+
+    assert_eq!(sentences, expected);
 }
