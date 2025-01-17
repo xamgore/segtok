@@ -78,7 +78,7 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
         if REGEX.is_match(word).unwrap() && !APOSTROPHE_LIKE.is_match(word).unwrap()
             || word.chars().any(|ch| LIST_OF_SENTENCE_TERMINALS.contains(ch))
         {
-            if word.len() == 1 || word == "..." {
+            if word.chars().count() == 1 || word == "..." {
                 break; // leave the token as it is
             }
 
@@ -105,7 +105,7 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
     // keep splicing off any dangling commas and (semi-) colons
     for idx in (0..tokens.len()).rev() {
         let word = tokens[idx];
-        if word.len() <= 1 {
+        if word.chars().count() <= 1 {
             continue;
         }
         if let Some((pos, _)) = word.char_indices().rev().take_while(|&(_, ch)| ",;:".contains(ch)).last() {

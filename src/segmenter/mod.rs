@@ -238,7 +238,7 @@ fn join_abbreviations(spans: &[&str]) -> Vec<String> {
     res
 }
 
-/// Check if the span ends with an unclosed `bracket`.
+/// Check if the span ends with an unclosed ASCII `bracket`.
 fn is_open(span: &str, brackets: (char, char)) -> bool {
     let mut offset = span.find(brackets.0);
     let mut nesting = if offset.is_none() { 0 } else { 1 };
@@ -279,7 +279,7 @@ fn is_open(span: &str, brackets: (char, char)) -> bool {
     nesting > 0
 }
 
-/// Check if the span starts with an unopened `bracket`.
+/// Check if the span starts with an unopened ASCII `bracket`.
 fn is_not_open(span: &str, brackets: (char, char)) -> bool {
     let mut offset = span.rfind(brackets.1);
     let mut nesting = if offset.is_none() { 0 } else { 1 };
