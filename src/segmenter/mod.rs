@@ -66,7 +66,6 @@ pub const LIST_OF_SENTENCE_TERMINALS: &str =
 pub static BEFORE_LOWER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!(
         r#"(?uxs)
-            .*?
             (?: [{SENTENCE_TERMINALS}]"[)\]]*  # ."]) .") ."
             |   [{SENTENCE_TERMINALS}] [)\]]+  # .]) .)
             |   \b spp \.                      # spp.  (species pluralis)
