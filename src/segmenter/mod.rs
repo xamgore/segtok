@@ -176,12 +176,12 @@ fn sentences<'a>(spans: impl Iterator<Item = &'a str>, cfg: SegmentConfig) -> Ve
                         && (is_open(last, ('(', ')'))
                             && (is_not_open(&current, ('(', ')'))
                                 || last.ends_with(" et al. ")
-                                || (UPPER_CASE_END.find(last).unwrap().is_some()
+                                || (UPPER_CASE_END.is_match(last).unwrap()
                                     && UPPER_CASE_START.is_match(&current).unwrap())))
                         || (is_open(last, ('[', ']'))
                             && (is_not_open(&current, ('[', ']'))
                                 || last.ends_with(" et al. ")
-                                || (UPPER_CASE_END.find(last).unwrap().is_some()
+                                || (UPPER_CASE_END.is_match(last).unwrap()
                                     && UPPER_CASE_START.is_match(&current).unwrap()))))
                     || CONTINUATIONS.is_match(&current).unwrap()
                 {
@@ -217,12 +217,11 @@ fn join_abbreviations(spans: &[&str]) -> Vec<String> {
             let next = spans.get(pos + 1);
 
             if ends_with_whitespace(prev)
-                || marker.starts_with('.') && (ABBREVIATIONS.find(prev).unwrap().is_some())
+                || marker.starts_with('.') && (ABBREVIATIONS.is_match(prev).unwrap())
                 || next.is_some_and(|&next| {
                     LONE_WORD.is_match(next).unwrap()
-                        || (ENDS_IN_DATE_DIGITS.find(prev).unwrap().is_some() && MONTH.is_match(next).unwrap())
-                        || (MIDDLE_INITIAL_END.find(prev).unwrap().is_some()
-                            && UPPER_WORD_START.is_match(next).unwrap())
+                        || (ENDS_IN_DATE_DIGITS.is_match(prev).unwrap() && MONTH.is_match(next).unwrap())
+                        || (MIDDLE_INITIAL_END.is_match(prev).unwrap() && UPPER_WORD_START.is_match(next).unwrap())
                 })
             {
                 continue;
