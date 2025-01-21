@@ -45,7 +45,7 @@ pub mod dates {
     pub static ENDS_IN_DATE_DIGITS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\b[0123]?[0-9]$"#).unwrap());
 
     pub static MONTH: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(J[äa]n|Ene|Feb|M[äa]r|A[pb]r|May|Jun|Jul|Aug|Sep|O[ck]t|Nov|D[ei][cz]|0?[1-9]|1[012])").unwrap()
+        Regex::new(r"^(J[äa]n|Ene|Feb|M[äa]r|A[pb]r|May|Jun|Jul|Aug|Sep|O[ck]t|Nov|D[ei][cz]|0?[1-9]|1[012])").unwrap()
     });
 }
 

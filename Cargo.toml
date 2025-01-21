@@ -16,3 +16,7 @@ repository = "https://github.com/xamgore/segtok"
 fancy-regex = "0.14.0"
 itertools = "0.14.0"
 htmlize = { version = "1.0.5", features = ["unescape_fast"] }
+
+[dev-dependencies]
+serde = "1.0.217"
+serde_json = "1.0.137"

@@ -7,7 +7,7 @@ use super::{ALPHA_NUM, APOSTROPHES, HYPHEN, LIST_OF_APOSTROPHES};
 
 /// A pattern that matches English words with a possessive s terminal form.
 pub static IS_POSSESSIVE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(&format!(r#"{ALPHA_NUM}+(?:{HYPHEN}{ALPHA_NUM}+)*(?:{APOSTROPHES}[sS]|[sS]{APOSTROPHES})$"#,)).unwrap()
+    Regex::new(&format!(r#"^{ALPHA_NUM}+(?:{HYPHEN}{ALPHA_NUM}+)*(?:{APOSTROPHES}[sS]|[sS]{APOSTROPHES})$"#,)).unwrap()
 });
 
 /// A function to split possessive markers at the end of alphanumeric (and hyphenated) tokens.

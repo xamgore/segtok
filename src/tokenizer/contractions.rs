@@ -6,7 +6,7 @@ use super::{ALPHA_NUM, APOSTROPHES, HYPHEN, LIST_OF_APOSTROPHES};
 
 /// A pattern that matches tokens with valid English contractions ``'(d|ll|m|re|s|t|ve)``.
 pub static IS_CONTRACTION: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(&format!(r#"{ALPHA_NUM}+(?:{HYPHEN}{ALPHA_NUM}+)*{APOSTROPHES}(?:d|ll|m|re|s|t|ve)$"#)).unwrap()
+    Regex::new(&format!(r#"^{ALPHA_NUM}+(?:{HYPHEN}{ALPHA_NUM}+)*{APOSTROPHES}(?:d|ll|m|re|s|t|ve)$"#)).unwrap()
 });
 
 /// A function to split apostrophe contractions at the end of alphanumeric (and hyphenated) tokens.
