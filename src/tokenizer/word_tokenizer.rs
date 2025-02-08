@@ -8,32 +8,33 @@ use super::{
 use crate::regex::RegexSplitExt;
 use crate::segmenter::LIST_OF_SENTENCE_TERMINALS;
 
-static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!(
         r#"(?ux)
             ((?:
-            # Dots, except ellipsis
-            {ALPHA_NUM} \. (?!\.\.)
+              # Dots, except ellipsis
+              {ALPHA_NUM} \. (?!\.\.)
             | # Comma, surrounded by digits (e.g., chemicals) or letters
-            {ALPHA_NUM} , (?={ALPHA_NUM})
+              {ALPHA_NUM} , (?={ALPHA_NUM})
             | # Colon, surrounded by digits (e.g., time, references)
-            {NUMBER} : (?={NUMBER})
+              {NUMBER} : (?={NUMBER})
             | # Hyphen, surrounded by digits (e.g., DNA endings: "5'-ACGT-3'") or letters
-            {ALPHA_NUM} {APOSTROPHE_LIKE}? {HYPHEN} (?={ALPHA_NUM})  # incl. optional apostrophe for DNA segments
+              # incl. optional apostrophe for DNA segments
+              {ALPHA_NUM} {APOSTROPHE_LIKE}? {HYPHEN} (?={ALPHA_NUM})
             | # Apostophes, non-consecutive
-            {APOSTROPHE_LIKE} (?!{APOSTROPHE_LIKE})
+              {APOSTROPHE_LIKE} (?!{APOSTROPHE_LIKE})
             | # ASCII single quote, surrounded by digits or letters (no dangling allowed)
-            {ALPHA_NUM} ' (?={ALPHA_NUM})
+              {ALPHA_NUM} ' (?={ALPHA_NUM})
             | # ASCII single quote after an s and at the token's end
-            s ' $
+              s ' $
             | # Terminal dimensions (superscript minus, 1, 2, and 3) attached to physical units
-            #  size-prefix                 unit-acronym    dimension
-            \b [yzafpn\u{{00B5}}mcdhkMGTPEZY]? {LETTER}{{1,3}} {POWER} $
+              #   size-prefix                    unit-acronym    dimension
+              \b [yzafpn\u{{00B5}}mcdhkMGTPEZY]? {LETTER}{{1,3}} {POWER} $
             | # Atom counts (subscript numbers) and ionization states (optional superscript
-            #   2 or 3 followed by a + or -) are attached to valid fragments of a chemical formula
-            \b (?:[A-Z][a-z]?|[\)\]])+ {SUBDIGIT}+ (?:[\u{{00B2}}\u{{00B3}}]?[\u{{207A}}\u{{207B}}])?
+              # 2 or 3 followed by a + or -) are attached to valid fragments of a chemical formula
+              \b (?:[A-Z][a-z]?|[\)\]])+ {SUBDIGIT}+ (?:[\u{{00B2}}\u{{00B3}}]?[\u{{207A}}\u{{207B}}])?
             | # Any (Unicode) letter, digit, or the underscore
-            {ALPHA_NUM}
+              {ALPHA_NUM}
             )+)
     "#,
         APOSTROPHE_LIKE = APOSTROPHE_LIKE.as_str()
@@ -68,14 +69,14 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
     let pruned = HYPHENATED_LINEBREAK.replace_all(sentence, |caps: &Captures| format!("{}{}", &caps[1], &caps[2]));
 
     let mut tokens = space_tokenizer(&pruned)
-        .flat_map(|span| REGEX.split_with_separators(span).filter(|&s| !s.is_empty()))
+        .flat_map(|span| WORD_BITS.split_with_separators(span).filter(|&s| !s.is_empty()))
         .collect::<Vec<_>>();
 
     // splice the sentence terminal off the last word/token if it has any at its borders
     // only look for the sentence terminal in the last three tokens
     for idx in (0..tokens.len()).rev().take(3) {
         let word = tokens[idx];
-        if REGEX.is_match(word).unwrap() && !APOSTROPHE_LIKE.is_match(word).unwrap()
+        if WORD_BITS.is_match(word).unwrap() && !APOSTROPHE_LIKE.is_match(word).unwrap()
             || word.chars().any(|ch| LIST_OF_SENTENCE_TERMINALS.contains(ch))
         {
             if word.chars().count() == 1 || word == "..." {

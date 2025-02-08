@@ -5,13 +5,13 @@ use fancy_regex::Regex;
 use super::{space_tokenizer, ALPHA_NUM};
 use crate::regex::RegexSplitExt;
 
-static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(&format!(r#"({ALPHA_NUM}+)"#)).unwrap());
+pub static SYMBOLIC: LazyLock<Regex> = LazyLock::new(|| Regex::new(&format!(r#"({ALPHA_NUM}+)"#)).unwrap());
 
 /// The symbol tokenizer extends the [space_tokenizer] by separating alphanumerics.
 ///
 /// Separates alphanumeric Unicode character sequences in already space-split tokens.
 pub fn symbol_tokenizer(sentence: &str) -> impl Iterator<Item = &str> {
-    space_tokenizer(sentence).flat_map(|token| REGEX.split_with_separators(token).filter(|&s| !s.is_empty()))
+    space_tokenizer(sentence).flat_map(|token| SYMBOLIC.split_with_separators(token).filter(|&s| !s.is_empty()))
 }
 
 #[cfg(test)]

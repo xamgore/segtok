@@ -5,7 +5,7 @@ use fancy_regex::Regex;
 use crate::regex::RegexSplitExt;
 use crate::tokenizer::word_tokenizer;
 
-static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub static URI_OR_MAIL: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?ux)
         (?<=^|[\s<"'(\[{])            # visual border
@@ -35,7 +35,7 @@ static REGEX: LazyLock<Regex> = LazyLock::new(|| {
 /// The web tokenizer works like the [word_tokenizer], but does not split URIs or
 /// e-mail addresses. It also un-escapes all escape sequences (except in URIs or email addresses).
 pub fn web_tokenizer(sentence: &str) -> Vec<String> {
-    REGEX
+    URI_OR_MAIL
         .split_with_separators(sentence)
         .enumerate()
         .flat_map(|(i, span)| {
