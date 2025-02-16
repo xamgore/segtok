@@ -16,8 +16,13 @@ pub use self::symbol_tokenizer::*;
 pub use self::web_tokenizer::*;
 pub use self::word_tokenizer::*;
 
-/// All apostrophe-like marks, including the ASCII "single quote".
+#[deprecated]
 pub const LIST_OF_APOSTROPHES: &str = "'\u{00B4}\u{02B9}\u{02BC}\u{2019}\u{2032}";
+
+/// All apostrophe-like marks, including the ASCII "single quote".
+pub(crate) fn is_apostrophe(ch: char) -> bool {
+    matches!(ch, '\'' | '\u{00B4}' | '\u{02B9}' | '\u{02BC}' | '\u{2019}' | '\u{2032}')
+}
 
 /// Any apostrophe-like marks, including "prime" but not the ASCII "single quote".
 pub const APOSTROPHES: &str = r#"['\u{00B4}\u{02B9}\u{02BC}\u{2019}\u{2032}]"#;

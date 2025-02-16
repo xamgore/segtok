@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use fancy_regex::Regex;
 
-use super::{ALPHA_NUM, APOSTROPHES, HYPHEN, LIST_OF_APOSTROPHES};
+use super::{is_apostrophe, ALPHA_NUM, APOSTROPHES, HYPHEN};
 
 /// A pattern that matches tokens with valid English contractions ``'(d|ll|m|re|s|t|ve)``.
 pub static IS_CONTRACTION: LazyLock<Regex> = LazyLock::new(|| {
@@ -27,7 +27,7 @@ pub fn split_contractions(mut tokens: Vec<String>) -> Vec<String> {
         let token = &mut tokens[idx];
 
         if token.len() > 1 && IS_CONTRACTION.is_match(token).unwrap() {
-            if let Some((mut pos, ap)) = token.char_indices().rfind(|&(_, ch)| LIST_OF_APOSTROPHES.contains(ch)) {
+            if let Some((mut pos, ap)) = token.char_indices().rfind(|&(_, ch)| is_apostrophe(ch)) {
                 // don't, doesn't
                 if token.get(pos.saturating_sub(1)..pos) == Some("n") && token.get(pos + ap.len_utf8()..) == Some("t") {
                     pos = pos.saturating_sub(1);

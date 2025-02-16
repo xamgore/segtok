@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use fancy_regex::Regex;
 use itertools::Itertools;
 
-use super::{ALPHA_NUM, APOSTROPHES, HYPHEN, LIST_OF_APOSTROPHES};
+use super::{is_apostrophe, ALPHA_NUM, APOSTROPHES, HYPHEN};
 
 /// A pattern that matches English words with a possessive s terminal form.
 pub static IS_POSSESSIVE: LazyLock<Regex> = LazyLock::new(|| {
@@ -29,11 +29,11 @@ pub fn split_possessive_markers(mut tokens: Vec<String>) -> Vec<String> {
 
         if IS_POSSESSIVE.is_match(token).unwrap() {
             if let Some(((_2idx, _2ch), (_1idx, _1ch))) = token.char_indices().tuple_windows::<(_, _)>().last() {
-                if _1ch.to_ascii_lowercase() == 's' && LIST_OF_APOSTROPHES.contains(_2ch) {
+                if _1ch.to_ascii_lowercase() == 's' && is_apostrophe(_2ch) {
                     let suffix = token.split_off(_2idx);
                     idx += 1;
                     tokens.insert(idx, suffix);
-                } else if _2ch.to_ascii_lowercase() == 's' && LIST_OF_APOSTROPHES.contains(_1ch) {
+                } else if _2ch.to_ascii_lowercase() == 's' && is_apostrophe(_1ch) {
                     let suffix = token.split_off(_1idx);
                     idx += 1;
                     tokens.insert(idx, suffix);
@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn split_unicode() {
-        assert!(LIST_OF_APOSTROPHES.contains("\u{2032}"));
+        assert!(is_apostrophe('\u{2032}'));
         let res = split_possessive_markers(vec!["a\u{2032}s".to_owned()]);
         assert_eq!(res, ["a", "\u{2032}s"]);
     }
