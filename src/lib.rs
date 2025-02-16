@@ -25,7 +25,6 @@ pub fn init() {
     let _ = tokenizer::HYPHENATED_LINEBREAK.deref();
     let _ = tokenizer::IS_CONTRACTION.deref();
     let _ = tokenizer::IS_POSSESSIVE.deref();
-    let _ = tokenizer::SPACES.deref();
     let _ = tokenizer::SYMBOLIC.deref();
     let _ = tokenizer::URI_OR_MAIL.deref();
     let _ = tokenizer::WORD_BITS.deref();

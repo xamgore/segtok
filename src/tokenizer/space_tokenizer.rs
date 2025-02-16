@@ -2,14 +2,16 @@ use std::sync::LazyLock;
 
 use fancy_regex::Regex;
 
+#[deprecated]
 pub static SPACES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\s+"#).unwrap());
 
 /// For a given input `sentence`, return a list of its tokens.
 ///
 /// Split on Unicode spaces ``\s+`` (i.e., any kind of **Unicode** space character).
 /// The separating space characters are not included in the resulting token list.
+#[inline(always)]
 pub fn space_tokenizer(sentence: &str) -> impl Iterator<Item = &str> {
-    SPACES.split(sentence).map(Result::unwrap).filter(|&s| !s.is_empty())
+    sentence.split_whitespace()
 }
 
 #[cfg(test)]
