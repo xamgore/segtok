@@ -21,7 +21,6 @@ pub fn init() {
     let _ = segmenter::ABBREVIATIONS.deref();
     let _ = segmenter::CONTINUATIONS.deref();
 
-    let _ = tokenizer::APOSTROPHE_LIKE.deref();
     let _ = tokenizer::HYPHENATED_LINEBREAK.deref();
     let _ = tokenizer::IS_CONTRACTION.deref();
     let _ = tokenizer::IS_POSSESSIVE.deref();

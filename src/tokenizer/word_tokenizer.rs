@@ -3,7 +3,8 @@ use std::sync::LazyLock;
 use fancy_regex::{Captures, Regex};
 
 use super::{
-    space_tokenizer, ALPHA_NUM, APOSTROPHE_LIKE, HYPHEN, HYPHENATED_LINEBREAK, LETTER, NUMBER, POWER, SUBDIGIT,
+    is_non_quote_apostrophe, space_tokenizer, ALPHA_NUM, HYPHEN, HYPHENATED_LINEBREAK, LETTER, NON_QUOTE_APOSTROPHE,
+    NUMBER, POWER, SUBDIGIT,
 };
 use crate::regex::RegexSplitExt;
 use crate::segmenter::is_sentence_terminal;
@@ -20,9 +21,9 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
               {NUMBER} : (?={NUMBER})
             | # Hyphen, surrounded by digits (e.g., DNA endings: "5'-ACGT-3'") or letters
               # incl. optional apostrophe for DNA segments
-              {ALPHA_NUM} {APOSTROPHE_LIKE}? {HYPHEN} (?={ALPHA_NUM})
+              {ALPHA_NUM} {NON_QUOTE_APOSTROPHE}? {HYPHEN} (?={ALPHA_NUM})
             | # Apostophes, non-consecutive
-              {APOSTROPHE_LIKE} (?!{APOSTROPHE_LIKE})
+              {NON_QUOTE_APOSTROPHE} (?!{NON_QUOTE_APOSTROPHE})
             | # ASCII single quote, surrounded by digits or letters (no dangling allowed)
               {ALPHA_NUM} ' (?={ALPHA_NUM})
             | # ASCII single quote after an s and at the token's end
@@ -36,8 +37,7 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
             | # Any (Unicode) letter, digit, or the underscore
               {ALPHA_NUM}
             )+)
-    "#,
-        APOSTROPHE_LIKE = APOSTROPHE_LIKE.as_str()
+        "#
     ))
     .unwrap()
 });
@@ -76,7 +76,7 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
     // only look for the sentence terminal in the last three tokens
     for idx in (0..tokens.len()).rev().take(3) {
         let word = tokens[idx];
-        if WORD_BITS.is_match(word).unwrap() && !APOSTROPHE_LIKE.is_match(word).unwrap()
+        if WORD_BITS.is_match(word).unwrap() && !word.chars().any(is_non_quote_apostrophe)
             || word.chars().any(is_sentence_terminal)
         {
             if word.chars().count() == 1 || word == "..." {
@@ -106,7 +106,7 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
         if word.chars().count() <= 1 {
             continue;
         }
-        if let Some((pos, _)) = word.char_indices().rev().take_while(|&(_, ch)| ",;:".contains(ch)).last() {
+        if let Some((pos, _)) = word.char_indices().rev().take_while(|&(_, ch)| matches!(ch, ',' | ';' | ':')).last() {
             tokens.splice(
                 idx..=idx,
                 std::iter::once(&word[..pos]).chain(word[pos..].split("")).filter(|s| !s.is_empty()),

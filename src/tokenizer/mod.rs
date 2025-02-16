@@ -27,9 +27,17 @@ pub(crate) fn is_apostrophe(ch: char) -> bool {
 /// Any apostrophe-like marks, including "prime" but not the ASCII "single quote".
 pub const APOSTROPHES: &str = r#"['\u{00B4}\u{02B9}\u{02BC}\u{2019}\u{2032}]"#;
 
-/// Matcher for any apostrophe-like marks, including "prime" but not the ASCII "single quote".
+#[deprecated]
 pub static APOSTROPHE_LIKE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"[\u{00B4}\u{02B9}\u{02BC}\u{2019}\u{2032}]"#).unwrap());
+
+/// Matcher for any apostrophe-like marks, including "prime" but not the ASCII "single quote".
+pub(crate) const NON_QUOTE_APOSTROPHE: &str = r#"[\u{00B4}\u{02B9}\u{02BC}\u{2019}\u{2032}]"#;
+
+/// Matcher for any apostrophe-like marks, including "prime" but not the ASCII "single quote".
+pub(crate) const fn is_non_quote_apostrophe(ch: char) -> bool {
+    matches!(ch, '\u{00B4}' | '\u{02B9}' | '\u{02BC}' | '\u{2019}' | '\u{2032}')
+}
 
 /// Any valid linebreak sequence (Windows, Unix, Mac, or U+2028).
 pub const LINEBREAK: &str = r#"(?:\r\n|\n|\r|\u{2028})"#;
