@@ -56,8 +56,30 @@ pub const HYPHENS: &str = r#"\u{00AD}\u{058A}\u{05BE}\u{0F0C}\u{1400}\u{1806}\u{
 pub const SENTENCE_TERMINALS: &str =
     r#".!?\u{203C}\u{203D}\u{2047}\u{2048}\u{2049}\u{3002}\u{FE52}\u{FE57}\u{FF01}\u{FF0E}\u{FF1F}\u{FF61}"#;
 
+#[deprecated]
 pub const LIST_OF_SENTENCE_TERMINALS: &str =
     ".!?\u{203C}\u{203D}\u{2047}\u{2048}\u{2049}\u{3002}\u{FE52}\u{FE57}\u{FF01}\u{FF0E}\u{FF1F}\u{FF61}";
+
+#[inline]
+pub(crate) fn is_sentence_terminal(ch: char) -> bool {
+    matches!(
+        ch,
+        '.' | '!'
+            | '?'
+            | '\u{203C}'
+            | '\u{203D}'
+            | '\u{2047}'
+            | '\u{2048}'
+            | '\u{2049}'
+            | '\u{3002}'
+            | '\u{FE52}'
+            | '\u{FE57}'
+            | '\u{FF01}'
+            | '\u{FF0E}'
+            | '\u{FF1F}'
+            | '\u{FF61}'
+    )
+}
 
 /// Endings that, if followed by a lower-case word, are not sentence terminals:
 /// - quotations and brackets ("Hello!" said the man.)

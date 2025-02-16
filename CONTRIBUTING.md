@@ -7,3 +7,7 @@
 - `fancy-regex` does not support branches during backtracking
 
 When porting, be careful in tracking all regex usages. If `re.is_match` used, prepend the regular expression with `^`.
+
+### Benchmarking
+
+`RUSTFLAGS=-Awarnings cargo bench --bench bench -q static -- --noplot`

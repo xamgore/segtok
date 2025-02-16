@@ -6,7 +6,7 @@ use super::{
     space_tokenizer, ALPHA_NUM, APOSTROPHE_LIKE, HYPHEN, HYPHENATED_LINEBREAK, LETTER, NUMBER, POWER, SUBDIGIT,
 };
 use crate::regex::RegexSplitExt;
-use crate::segmenter::LIST_OF_SENTENCE_TERMINALS;
+use crate::segmenter::is_sentence_terminal;
 
 pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!(
@@ -77,21 +77,18 @@ pub fn word_tokenizer(sentence: &str) -> Vec<String> {
     for idx in (0..tokens.len()).rev().take(3) {
         let word = tokens[idx];
         if WORD_BITS.is_match(word).unwrap() && !APOSTROPHE_LIKE.is_match(word).unwrap()
-            || word.chars().any(|ch| LIST_OF_SENTENCE_TERMINALS.contains(ch))
+            || word.chars().any(is_sentence_terminal)
         {
             if word.chars().count() == 1 || word == "..." {
                 break; // leave the token as it is
             }
 
-            if let Some((pos, _)) =
-                word.char_indices().last().filter(|&(_, last)| LIST_OF_SENTENCE_TERMINALS.contains(last))
-            {
+            if let Some((pos, _)) = word.char_indices().last().filter(|&(_, last)| is_sentence_terminal(last)) {
                 // stuff.
                 let (prefix, suffix) = word.split_at(pos);
                 tokens[idx] = prefix;
                 tokens.insert(idx + 1, suffix);
-            } else if let Some((pos, ch)) =
-                word.char_indices().next().filter(|&(_, first)| LIST_OF_SENTENCE_TERMINALS.contains(first))
+            } else if let Some((pos, ch)) = word.char_indices().next().filter(|&(_, first)| is_sentence_terminal(first))
             {
                 // .stuff
                 let (prefix, suffix) = word.split_at(pos + ch.len_utf8());

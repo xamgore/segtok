@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
@@ -24,6 +26,63 @@ fn benchmark(cr: &mut Criterion) {
             .sample_size(10_000)
             .measurement_time(Duration::from_secs(60))
             .bench_with_input(BenchmarkId::new(name, size), text, |b, text| b.iter(|| tokenize(text)));
+    }
+
+    gr.finish();
+}
+
+fn is_terminal(cr: &mut Criterion) {
+    let mut gr = cr.benchmark_group("is_terminal");
+
+    #[inline]
+    fn is_term(ch: char) -> bool {
+        matches!(
+            ch,
+            '.' | '!'
+                | '?'
+                | '\u{203C}'
+                | '\u{203D}'
+                | '\u{2047}'
+                | '\u{2048}'
+                | '\u{2049}'
+                | '\u{3002}'
+                | '\u{FE52}'
+                | '\u{FE57}'
+                | '\u{FF01}'
+                | '\u{FF0E}'
+                | '\u{FF1F}'
+                | '\u{FF61}'
+        )
+    }
+
+    const LIST: &str =
+        ".!?\u{203C}\u{203D}\u{2047}\u{2048}\u{2049}\u{3002}\u{FE52}\u{FE57}\u{FF01}\u{FF0E}\u{FF1F}\u{FF61}";
+
+    let set = LIST.chars().collect::<hashbrown::HashSet<_>>();
+
+    let cases = [(
+        "bad case",
+        r#"⑬⦦₩⏍⺑⮫ⵒ⑱⡗⎂⅕⤎①⥽⤜Ⅳ⽽⑇⛀⹟⟩⽞❧ ▮ⷝ₏⨶⍫⌦✉⎱⍸╤ⰶ⥛⧏⥑₎☿⍦“⃩ⷆ➊⃆⅓⥽⍤ⱴ⩢⯽♸ℶ❆ⅎⱶ⦪⶧☖⊱⮣┈⮄⪍⸺➕⥭⫴ↂ❢Ⰾ▩⑩⑩⸆⇨⭖⥉⼐➩␌‖⡦◥⟂⟁⏑⏂‎₆⾯⤱⑰⍇☄⧟ⱴ⒳▮"#,
+    )];
+
+    for (name, input) in cases {
+        // 150 ns
+        gr.bench_with_input(BenchmarkId::new("match", name), input, |b, text| b.iter(|| text.chars().any(is_term)));
+
+        // 200'000 ns
+        gr.bench_with_input(BenchmarkId::new("iter_str", name), input, |b, text| {
+            b.iter(|| text.chars().any(|c| LIST.contains(c)))
+        });
+
+        // 250 ns
+        gr.bench_with_input(BenchmarkId::new("hash_contains", name), input, |b, text| {
+            b.iter(|| text.chars().any(|c| set.contains(&c)))
+        });
+
+        // 900 ns
+        gr.bench_with_input(BenchmarkId::new("hash_intersection", name), input, |b, text| {
+            b.iter(|| text.chars().collect::<hashbrown::HashSet<_>>().intersection(&set).next().is_some())
+        });
     }
 
     gr.finish();

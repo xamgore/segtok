@@ -21,6 +21,7 @@ htmlize = { version = "1.0.5", features = ["unescape_fast"] }
 criterion = "0.5.1"
 serde = "1.0.217"
 serde_json = "1.0.137"
+hashbrown = "0.15.2"
 
 [[bench]]
 name = "bench"
