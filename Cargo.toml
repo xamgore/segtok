@@ -18,5 +18,10 @@ itertools = "0.14.0"
 htmlize = { version = "1.0.5", features = ["unescape_fast"] }
 
 [dev-dependencies]
+criterion = "0.5.1"
 serde = "1.0.217"
 serde_json = "1.0.137"
+
+[[bench]]
+name = "bench"
+harness = false
