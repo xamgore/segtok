@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use either::Either;
 use fancy_regex::Regex;
 
 use crate::regex::RegexSplitExt;
@@ -41,9 +42,9 @@ pub fn web_tokenizer(sentence: &str) -> Vec<String> {
         .flat_map(|(i, span)| {
             if i % 2 == 0 {
                 let span = &htmlize::unescape(span);
-                word_tokenizer(span)
+                Either::Left(word_tokenizer(span).into_iter())
             } else {
-                vec![span.to_owned()] // fixme: creates wasted vectors of size 1.
+                Either::Right(std::iter::once(span.to_owned()))
             }
         })
         .collect()
