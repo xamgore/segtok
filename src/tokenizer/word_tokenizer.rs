@@ -6,7 +6,7 @@ use super::{
     is_non_quote_apostrophe, space_tokenizer, ALPHA_NUM, HYPHEN, HYPHENATED_LINEBREAK, LETTER, NON_QUOTE_APOSTROPHE,
     NUMBER, POWER, SUBDIGIT,
 };
-use crate::regex::RegexSplitExt;
+use crate::regex::{Partition, PartitionIter};
 use crate::segmenter::is_sentence_terminal;
 
 pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
@@ -68,16 +68,19 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
 pub fn word_tokenizer(sentence: &str) -> Vec<String> {
     let pruned = HYPHENATED_LINEBREAK.replace_all(sentence, |caps: &Captures| format!("{}{}", &caps[1], &caps[2]));
 
-    let mut tokens = space_tokenizer(&pruned)
-        .flat_map(|span| WORD_BITS.split_with_separators(span).filter(|&s| !s.is_empty()))
-        .collect::<Vec<_>>();
+    let (mut tokens, is_word_bit): (Vec<_>, Vec<_>) = space_tokenizer(&pruned)
+        .flat_map(|span| PartitionIter::new(&WORD_BITS, span).filter(|&s| !s.as_ref().is_empty()))
+        .map(Partition::into_pair)
+        .unzip();
 
     // splice the sentence terminal off the last word/token if it has any at its borders
     // only look for the sentence terminal in the last three tokens
-    for idx in (0..tokens.len()).rev().take(3) {
-        let word = tokens[idx];
-        if WORD_BITS.is_match(word).unwrap() && !word.chars().any(is_non_quote_apostrophe)
-            || word.chars().any(is_sentence_terminal)
+    let last_three = tokens.iter().copied().zip(is_word_bit.iter().copied()).enumerate().rev().take(3);
+
+    for (idx, (word, is_word_bit)) in last_three {
+        if is_word_bit && !word.chars().any(is_non_quote_apostrophe)
+            || word.chars().last().is_some_and(is_sentence_terminal)
+            || word.chars().next().is_some_and(is_sentence_terminal)
         {
             if word.chars().count() == 1 || word == "..." {
                 break; // leave the token as it is

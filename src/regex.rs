@@ -13,11 +13,21 @@ impl<'s> Partition<'s> {
             Partition::NonMatch(str) => str,
         }
     }
+
+    pub fn into_pair(self) -> (&'s str, bool) {
+        (self.into_inner(), matches!(self, Partition::Match(_)))
+    }
 }
 
 impl<'s> From<Partition<'s>> for &'s str {
     fn from(value: Partition<'s>) -> Self {
         value.into_inner()
+    }
+}
+
+impl<'s> AsRef<str> for Partition<'s> {
+    fn as_ref(&self) -> &str {
+        self.into_inner()
     }
 }
 
