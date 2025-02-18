@@ -88,10 +88,9 @@ pub(crate) fn is_sentence_terminal(ch: char) -> bool {
 pub static BEFORE_LOWER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!(
         r#"(?uxs)
-            (?: [{SENTENCE_TERMINALS}]"[)\]]*  # ."]) .") ."
-            |   [{SENTENCE_TERMINALS}] [)\]]+  # .]) .)
-            |   \b spp \.                      # spp.  (species pluralis)
-            |   \b \p{{L}} \p{{Ll}}? \.        # Ll. L.
+            (?:
+              [{SENTENCE_TERMINALS}] (?: " [)\]]* | [)\]]+ )   # ."]) .") ."  OR  .])  .)
+            | \b (?: spp | \p{{L}} \p{{Ll}}? ) \.              # spp.  (species pluralis)  OR  Ll. L.
             )
             \s+ $
         "#

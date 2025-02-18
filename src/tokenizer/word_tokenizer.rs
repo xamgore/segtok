@@ -12,20 +12,22 @@ use crate::segmenter::is_sentence_terminal;
 pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!(
         r#"(?ux)
-            ((?:
-              # Dots, except ellipsis
-              {ALPHA_NUM} \. (?!\.\.)
-            | # Comma, surrounded by digits (e.g., chemicals) or letters
-              {ALPHA_NUM} , (?={ALPHA_NUM})
+            (?:
+              {ALPHA_NUM}
+              (?:
+                # Dots, except ellipsis
+                \. (?! \.\. )
+                # Comma, surrounded by digits (e.g., chemicals) or letters OR
+                # ASCII single quote, surrounded by digits or letters (no dangling allowed)
+              | [,'] (?={ALPHA_NUM})
+                # Hyphen, surrounded by digits (e.g., DNA endings: "5'-ACGT-3'") or letters
+                # incl. optional apostrophe for DNA segments
+              | {NON_QUOTE_APOSTROPHE}? {HYPHEN} (?={ALPHA_NUM})
+              )
             | # Colon, surrounded by digits (e.g., time, references)
               {NUMBER} : (?={NUMBER})
-            | # Hyphen, surrounded by digits (e.g., DNA endings: "5'-ACGT-3'") or letters
-              # incl. optional apostrophe for DNA segments
-              {ALPHA_NUM} {NON_QUOTE_APOSTROPHE}? {HYPHEN} (?={ALPHA_NUM})
             | # Apostophes, non-consecutive
               {NON_QUOTE_APOSTROPHE} (?!{NON_QUOTE_APOSTROPHE})
-            | # ASCII single quote, surrounded by digits or letters (no dangling allowed)
-              {ALPHA_NUM} ' (?={ALPHA_NUM})
             | # ASCII single quote after an s and at the token's end
               s ' $
             | # Terminal dimensions (superscript minus, 1, 2, and 3) attached to physical units
@@ -36,7 +38,7 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
               \b (?: [A-Z][a-z]? | [\)\]] )+ [₀-₉]+ (?: [²³]?[⁺⁻] )?
             | # Any (Unicode) letter, digit, or the underscore
               {ALPHA_NUM}
-            )+)
+            )+
         "#
     ))
     .unwrap()
@@ -263,6 +265,13 @@ mod tests {
     fn dots() {
         let input = "\t1.2.3, f.e., is Mr. .Abbreviation.\n";
         let expected = ["1.2.3", ",", "f.e.", ",", "is", "Mr.", ".", "Abbreviation", "."];
+        assert_eq!(word_tokenizer(&input), expected);
+    }
+
+    #[test]
+    fn hyphened_numbers() {
+        let input = "1-1-1:2:2";
+        let expected = ["1-1-1:2:2"];
         assert_eq!(word_tokenizer(&input), expected);
     }
 

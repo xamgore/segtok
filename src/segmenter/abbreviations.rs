@@ -1,7 +1,6 @@
 use std::sync::LazyLock;
 
 use fancy_regex::Regex;
-use itertools::Itertools;
 
 use crate::segmenter::HYPHENS;
 
@@ -11,13 +10,34 @@ use crate::segmenter::HYPHENS;
 pub static ABBREVIATIONS: LazyLock<Regex> = LazyLock::new(|| {
     // Only abbreviations that should never occur at the end of a sentence (such as "etc.")
     let list = r#"
-        [Aa]pprox Capt [Cc]f Col Dr [Ff]\.?e [Ff]igs? Gen [Ee]\.?g [Ii]\.?e [Ii]\.?v
-        Mag [Mm]ed Mr Mrs Mt [Nn]at No [Nn]r [Pp]\.e [Pp]hil [Pp]rof [Rr]er
-        [Ss]ci Sgt Sr Sra Srta St [Uu]niv [Vv]ol [Vv]s [Zz]\.B
-        Jän Jan Ene Feb Mär Mar Apr Abr May Jun Jul Aug Sep Sept Oct Okt Nov Dic Dez Dec
-        E\.U U\.K U\.S
+       approx
+    |  cf
+    |  med
+    |  n(?: at | r )
+    |  e\.?g
+    |  sci
+    |  univ
+    |  v(?: ol | s )
+    |  f(?: e      | \.e   | igs?  )
+    |  A(?: br     | pr    | pprox | ug )
+    |  C(?: apt    | f     | ol    )
+    |  D(?: r      | ic    | e[zc] )
+    |  E(?: \.[Ug] | g     | ne    )
+    |  F(?: eb?    | \.e   | igs?  )
+    |  Gen
+    |  [Ii] (?: \.?[ev] )
+    |  J(?: an     | u[nl] | än    )
+    |  M(?: a[gry] | ed    | rs?   | t | är )
+    |  N(?: at     | ov?   | r     )
+    |  O[ck]t
+    |  [Pp](?: hil | rof | \.e )
+    |  [Rr]er
+    |  S(?: ci | ept? | gt | r (?: a | ta )? | t )
+    |  U(?: niv | \.[KS] )
+    |  Vol
+    |  Vs
+    |  [Zz]\.B
     "#;
-    let list = list.split_ascii_whitespace().join("|");
     Regex::new(&format!(
         r#"(?ux)
         (?: \b(?:{list}) # 1. known abbreviations,
@@ -34,8 +54,8 @@ pub static ABBREVIATIONS: LazyLock<Regex> = LazyLock::new(|| {
                 |   [Ss]e\u00F1or(?:it)?a?
                 ) \s
             # 4.b. if they are most likely part of an author list: (avoiding "...A and B")
-            |   (?: (?<! \b\p{{Lu}}\p{{Lm}} | \b\p{{Lu}} ) , (?: \s and )?
-                |   (?<! \b[\p{{Lu}},]\p{{Lm}} | \b[\p{{Lu}},] ) \s and
+            |   (?: (?<! \b \p{{Lu}}  \p{{Lm}} | \b \p{{Lu}}   ) , (?: \s and )?
+                |   (?<! \b[\p{{Lu}},]\p{{Lm}} | \b[\p{{Lu}},] )       \s and
                 ) \s
             # 4.c. a bracket opened just before the letters
             |   [\[(]
