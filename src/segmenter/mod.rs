@@ -128,11 +128,11 @@ fn segmenter_regex(line_breaks: usize) -> Regex {
         r#"(?ux)
             (                               # A sentence ends at one of two sequences:
                 [{SENTENCE_TERMINALS}]      # Either, a sequence starting with a sentence terminal,
-                [\'\u{{2019}}\"\u{{201D}}]? # an optional right quote,
-                [\]\)]*                     # optional closing brackets and
-                \s+                         # a sequence of required spaces.
+                ['’"”]?                     #         an optional right quote,
+                [\]\)]*                     #         optional closing brackets and
+                \s+                         #         a sequence of required spaces.
             |                               # Otherwise,
-                \n{{{line_breaks},}}        # a sentence also terminates at [consecutive] newlines.
+                \n{{{line_breaks},}}        #         a sentence also terminates at [consecutive] newlines.
             )
         "#
     ))

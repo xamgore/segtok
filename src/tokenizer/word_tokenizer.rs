@@ -4,7 +4,7 @@ use fancy_regex::{Captures, Regex};
 
 use super::{
     is_non_quote_apostrophe, space_tokenizer, ALPHA_NUM, HYPHEN, HYPHENATED_LINEBREAK, LETTER, NON_QUOTE_APOSTROPHE,
-    NUMBER, POWER, SUBDIGIT,
+    NUMBER,
 };
 use crate::regex::{Partition, PartitionIter};
 use crate::segmenter::is_sentence_terminal;
@@ -29,11 +29,11 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
             | # ASCII single quote after an s and at the token's end
               s ' $
             | # Terminal dimensions (superscript minus, 1, 2, and 3) attached to physical units
-              #   size-prefix                    unit-acronym    dimension
-              \b [yzafpn\u{{00B5}}mcdhkMGTPEZY]? {LETTER}{{1,3}} {POWER} $
+              #   size-prefix           unit-acronym     dimension
+              \b [yzafpnµmcdhkMGTPEZY]? {LETTER}{{1,3}} ⁻?[¹²³] $
             | # Atom counts (subscript numbers) and ionization states (optional superscript
-              # 2 or 3 followed by a + or -) are attached to valid fragments of a chemical formula
-              \b (?:[A-Z][a-z]?|[\)\]])+ {SUBDIGIT}+ (?:[\u{{00B2}}\u{{00B3}}]?[\u{{207A}}\u{{207B}}])?
+              # ² or ³ followed by a ⁺ or ⁻) are attached to valid fragments of a chemical formula
+              \b (?: [A-Z][a-z]? | [\)\]] )+ [₀-₉]+ (?: [²³]?[⁺⁻] )?
             | # Any (Unicode) letter, digit, or the underscore
               {ALPHA_NUM}
             )+)
@@ -361,35 +361,23 @@ mod tests {
 
     #[test]
     fn chemicals_and_dna() {
-        let input = "1,r-4-cyclo.hexene 5\u{2032}-ATGCAAAT-3\u{2032} 5'-ACGT-3'";
+        let input = "1,r-4-cyclo.hexene 5′-ATGCAAAT-3′ 5'-ACGT-3'";
         // this one is too ambiguous
-        let expected = ["1,r-4-cyclo.hexene", "5\u{2032}-ATGCAAAT-3\u{2032}", "5", "'-", "ACGT-3", "'"];
+        let expected = ["1,r-4-cyclo.hexene", "5′-ATGCAAAT-3′", "5", "'-", "ACGT-3", "'"];
         assert_eq!(word_tokenizer(&input), expected);
     }
 
     #[test]
     fn physical_units() {
-        let input = "10 V\u{00B7}m\u{207B}\u{00B9} msec\u{00B2}";
-        let expected = ["10", "V", "\u{00B7}", "m\u{207B}\u{00B9}", "msec\u{00B2}"];
+        let input = "10 V·m⁻¹ msec²";
+        let expected = ["10", "V", "·", "m⁻¹", "msec²"];
         assert_eq!(word_tokenizer(&input), expected);
     }
 
     #[test]
     fn chemical_formula() {
-        let input = "O\u{2082} H\u{2081}\u{2082}Si\u{2085}O\u{2082} Al\u{2082}(SO\u{2084})\u{2083} [NO\u{2084}]\u{207B} Not\u{2081}";
-        let expected = [
-            "O\u{2082}",
-            "H\u{2081}\u{2082}Si\u{2085}O\u{2082}",
-            "Al\u{2082}",
-            "(",
-            "SO\u{2084}",
-            ")\u{2083}",
-            "[",
-            "NO\u{2084}",
-            "]\u{207B}",
-            "Not",
-            "\u{2081}",
-        ];
+        let input = "O₂ H₁₂Si₅O₂ Al₂(SO₄)₃ [NO₄]⁻ Not₁";
+        let expected = ["O₂", "H₁₂Si₅O₂", "Al₂", "(", "SO₄", ")₃", "[", "NO₄", "]⁻", "Not", "₁"];
         assert_eq!(word_tokenizer(&input), expected);
     }
 

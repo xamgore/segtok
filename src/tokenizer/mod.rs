@@ -52,10 +52,10 @@ pub const NUMBER: &str = r#"[\p{Nd}\p{Nl}]"#;
 pub const ALPHA_NUM: &str = r#"[\p{Ll}\p{Lm}\p{Lt}\p{Lu}\p{Nd}\p{Nl}]"#;
 
 /// Superscript 1, 2, and 3, optionally prefixed with a minus sign.
-pub const POWER: &str = r#"\u{207B}?[\u{00B9}\u{00B2}\u{00B3}]"#;
+pub const POWER: &str = r#"⁻?[¹²³]"#;
 
 /// Subscript digits.
-pub const SUBDIGIT: &str = r#"[\u{2080}-\u{2089}]"#;
+pub const SUBDIGIT: &str = r#"[₀-₉]"#;
 
 pub const HYPHEN: &str = r#"[\u{00AD}\u{058A}\u{05BE}\u{0F0C}\u{1400}\u{1806}\u{2010}-\u{2012}\u{2e17}\u{30A0}-]"#;
 
