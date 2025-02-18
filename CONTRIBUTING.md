@@ -8,6 +8,11 @@
 
 When porting, be careful in tracking all regex usages. If `re.is_match` used, prepend the regular expression with `^`.
 
-### Benchmarking
+### Helpful commands
 
-`RUSTFLAGS=-Awarnings cargo bench --bench bench -q static -- --noplot`
+- Benchmarking \
+  `RUSTFLAGS=-Awarnings cargo bench --bench bench -q static -- --noplot`
+
+- Documentation \
+  `cargo doc --open` \
+  `cargo watch -q -x doc`

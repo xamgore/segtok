@@ -1,4 +1,6 @@
-//! A pattern-based sentence segmentation strategy; Known limitations:
+//! A pattern-based sentence segmentation strategy.
+//!
+//! Known limitations:
 //!
 //! 1. The sentence must use a known sentence terminal followed by space(s),
 //!    skipping one optional, intervening quote and/or bracket.
@@ -17,7 +19,7 @@
 //! to not split before a comma, colon, or semi-colon,
 //! and to avoid single letters or digits as sentences ("A. This sentence...").
 //!
-//! Sentence splits will always be enforced at [consecutive] line separators.
+//! Sentence splits will always be enforced at **consecutive** line separators.
 //!
 //! Important: Windows text files use `\r\n` as linebreaks and Mac files use `\r`;
 //! Convert the text to Unix linebreaks if the case.

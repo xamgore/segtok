@@ -44,7 +44,8 @@ pub static WORD_BITS: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 
-/// This tokenizer extends the alphanumeric [symbol_tokenizer] by splitting fewer cases:
+/// This tokenizer extends the alphanumeric [symbol_tokenizer](crate::tokenizer::symbol_tokenizer)
+/// by splitting fewer cases.
 ///
 /// 1. Dots appearing after a letter are maintained as part of the word, except for the last word
 ///    in a sentence if that dot is the sentence terminal. Therefore, abbreviation marks (words
